@@ -5,6 +5,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;; GLOBAL CONSTANTS ;;;
+(define BOARD-WIDTH 20)
+(define BOARD-HEIGHT 20)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;; GAME DEF ;;;
 
 ;; A SnakeGame is a game consisting of a
@@ -20,18 +26,32 @@
 #;(define (snake-game-template sg)
     (... (snake-template (snake-game-snake sg))
          (snake-game-time sg)
-         (snake-game-difficulty sg)
+         (difficulty-template (snake-game-difficulty sg))
          (fruit-template (snake-game-fruit sg)) ...))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; DIFFICULTY DEF ;;;
+;; A Difficulty is one of:
+;; - "EASY"
+;; - "MEDIUM"
+;; - "HARD"
+
+;; difficulty-template :: Difficulty -> ???
+#;(define (difficulty-template d)
+    (cond [(string=? d "EASY") ...]
+          [(string=? d "MEDIUM") ...]
+          [(string=? d "HARD") ...]
+          [else ...]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; SNAKE DEF ;;;
 
-;; A Snake consists of a
-;; - [List-of SnakePart] -> One of:
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; - (cons SnakePart [List-of SnakePart])
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; - '()
-;; - Direction
+;; A Snake is a [SnakePart]:
+;;;; either
+;;;; - (cons SnakePart [Snake-Part])
+;;;; - '() / empty
 
 
 ;; (make-snake losp d) := A Snake consisting of a [List-of SnakePart] _losp_ and with a head pointing
@@ -40,9 +60,9 @@
 
 ;; snake-template :: Snake -> ???
 #;(define (snake-template s)
-    (... (cond [(empty? (snake-parts s)) ...]
-               [(cons? (snake-parts s)) (... (rest (snake-parts s)))])
-         (direction-template (snake-direction s)) ...))
+    (cond [(empty? s) ...]
+          [(cons? s) (... (first s)
+                          (snake-template (rest s)))]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -135,3 +155,29 @@
 
 (require 2htdp/image) ;; for images
 (require 2htdp/universe) ;; for a world program
+
+;; start-snake-game :: SnakeGame -> World
+;; Starts a game of snake with the given SnakeGame _sg_
+(define (start-snake-game sg)
+  (big-bang sg
+    [to-draw draw-snake-game]))
+
+
+(define (draw-snake-game sg)
+  (rectangle 100 100 "solid" "red"))
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; to start the game
+(define STARTING-SNAKE (list (make-snake-part (make-posn 0 0) "RIGHT")))
+(define STARTING-DIFFICULTY "EASY")
+(define STARTING-TIME 0)
+(define STARTING-FRUIT (make-fruit (make-posn (/ BOARD-WIDTH 2) (/ BOARD-HEIGHT 2)) "LEMON"))
+(define STARTING-GAME (make-snake-game STARTING-SNAKE STARTING-TIME "EASY" STARTING-FRUIT))
+
+(start-snake-game STARTING-GAME)
